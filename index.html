@@ -46,7 +46,14 @@ iframe{width:100%;height:100%;border:0}
 </button>
 <div class="overlay" id="ov" onclick="close()"></div>
 <div class="content">
-  <iframe id="pdi" src="https://script.google.com/macros/s/AKfycby9IT55uiRPCvCDdL3rOdA9eP5oYN6jPmMQ75dVZOuBGIyx12fIhdj01ID8Q4ZIRgc74w/exec?page=main"></iframe>
+  <script>
+function openPDI(p){
+  window.open(
+    "https://script.google.com/macros/s/AKfycby9IT55uiRPCvCDdL3rOdA9eP5oYN6jPmMQ75dVZOuBGIyx12fIhdj01ID8Q4ZIRgc74w/exec?page="+p,
+    "_self" // or "_blank"
+  );
+}
+</script>
 </div>
 <script>
 const sb=document.getElementById('sb');
@@ -80,3 +87,4 @@ if(m)sb.classList.add('hide');
 </script>
 </body>
 </html>
+
