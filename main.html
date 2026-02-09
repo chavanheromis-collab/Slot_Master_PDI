@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Main PDI – Live</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<style>
+body {
+  margin: 0;
+  background: #e5e7eb;
+  font-family: Arial, sans-serif;
+}
+
+/* YARD */
+.yard {
+  position: relative;
+  width: 1200px;
+  height: 650px;
+  margin: 20px auto;
+  background: #f9fafb;
+  border: 3px solid #111;
+}
+
+/* ENTRY */
+.entry {
+  position: absolute;
+  top: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-weight: bold;
+}
+
+/* CABIN */
+.cabin {
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  width: 460px;
+  height: 120px;
+  border: 3px solid #111;
+  background: #d1d5db;
+  text-align: center;
+  font-weight: bold;
+  line-height: 120px;
+}
+
+/* CENTER PATH */
+.path {
+  position: absolute;
+  top: 40px;
+  bottom: 160px;
+  left: 50%;
+  width: 70px;
+  transform: translateX(-50%);
+  border-left: 2px dashed #444;
+  border-right: 2px dashed #444;
+}
+
+/* RAMP */
+.ramp {
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 250px;
+  height: 90px;
+  background: #6b7280;
+  color: #fff;
+  font-weight: bold;
+  text-align: center;
+  line-height: 90px;
+  border: 3px solid #111;
+}
+
+/* LANES */
+.lane {
+  position: absolute;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.lane.left {
+  flex-direction: row;
+  right: calc(50% + 45px);
+}
+
+.lane.right {
+  flex-direction: row-reverse;
+  left: calc(50% + 45px);
+}
+
+.label {
+  width: 28px;
+  font-weight: bold;
+}
+
+/* SLOT */
+.slot {
+  width: 34px;
+  height: 34px;
+  border: 2px solid #111;
+  font-size: 11px;
+  font-weight: bold;
+  text-align: center;
+  line-height: 34px;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="yard">
+
+  <div class="entry">ENTRY ↓</div>
+  <div class="cabin">CABIN / OFFICE</div>
+  <div class="path"></div>
+
+  <!-- LEFT SIDE : J → P -->
+  <div class="lane left" data-row="J" style="top:190px;"><div class="label">J →</div></div>
+  <div class="lane left" data-row="K" style="top:250px;"><div class="label">K →</div></div>
+  <div class="lane left" data-row="L" style="top:310px;"><div class="label">L →</div></div>
+  <div class="lane left" data-row="M" style="top:370px;"><div class="label">M →</div></div>
+  <div class="lane left" data-row="N" style="top:430px;"><div class="label">N →</div></div>
+  <div class="lane left" data-row="O" style="top:490px; left:350px;"><div class="label">O →</div></div>
+  <div class="lane left" data-row="P" style="top:550px; left:350px;"><div class="label">P →</div></div>
+
+  <!-- RIGHT SIDE : A → I -->
+  <div class="lane right" data-row="A" style="top:60px;"><div class="label">← A</div></div>
+  <div class="lane right" data-row="B" style="top:120px;"><div class="label">← B</div></div>
+  <div class="lane right" data-row="C" style="top:180px;"><div class="label">← C</div></div>
+  <div class="lane right" data-row="D" style="top:240px;"><div class="label">← D</div></div>
+  <div class="lane right" data-row="E" style="top:300px;"><div class="label">← E</div></div>
+  <div class="lane right" data-row="F" style="top:360px;"><div class="label">← F</div></div>
+  <div class="lane right" data-row="G" style="top:420px;"><div class="label">← G</div></div>
+  <div class="lane right" data-row="H" style="top:490px; right:350px;"><div class="label">← H</div></div>
+  <div class="lane right" data-row="I" style="top:540px; right:350px;"><div class="label">← I</div></div>
+
+  <div class="ramp">RAMP</div>
+
+</div>
+
+<script>
+/* 🔴 PASTE YOUR APPS SCRIPT WEB APP URL HERE */
+const API_URL = "https://script.google.com/macros/s/AKfycbwco27JupbTnm0DycN3ch2amcF7TknsCm00MLHsa6jpkn3S_p1lN2vYK_-D1eGtvBn0KA/exec";
+
+/* STATUS → COLOR */
+function statusColor(status) {
+  if (status === "EMPTY") return "#22c55e";
+  if (status === "ASSIGNED") return "#facc15";
+  if (status === "DELIVERED") return "#9ca3af";
+  return "#ef4444";
+}
+
+/* LOAD DATA */
+fetch(API_URL)
+  .then(res => res.json())
+  .then(data => {
+    document.querySelectorAll(".lane").forEach(lane => {
+      const row = lane.dataset.row;
+      const slots = data[row] || [];
+
+      slots.forEach(s => {
+        const slot = document.createElement("div");
+        slot.className = "slot";
+        slot.textContent = s.slotNo;
+        slot.style.background = statusColor(s.status);
+
+        /* real identifiers */
+        slot.dataset.slotId = s.slotId;
+        slot.dataset.status = s.status;
+        slot.dataset.vin = s.vin || "";
+
+        lane.appendChild(slot);
+      });
+    });
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Failed to load MAIN PDI data");
+  });
+</script>
+
+</body>
+</html>
