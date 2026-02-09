@@ -5,504 +5,78 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PDI Shell</title>
 <style>
-:root {
-  --sidebar-width: 280px;
-  --primary-bg: #0f172a;
-  --secondary-bg: #1e293b;
-  --accent-color: #3b82f6;
-  --accent-hover: #2563eb;
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --border-color: #334155;
-  --transition-speed: 0.3s;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  height: 100vh;
-  overflow: hidden;
-  background: var(--primary-bg);
-  color: var(--text-primary);
-}
-
-/* Sidebar Styles */
-.sidebar {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: var(--sidebar-width);
-  height: 100%;
-  background: var(--secondary-bg);
-  border-right: 1px solid var(--border-color);
-  display: flex;
-  flex-direction: column;
-  transition: transform var(--transition-speed) ease;
-  z-index: 1000;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
-}
-
-.sidebar.collapsed {
-  transform: translateX(-100%);
-}
-
-.sidebar-header {
-  padding: 20px;
-  background: var(--primary-bg);
-  border-bottom: 1px solid var(--border-color);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.sidebar-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.sidebar-title::before {
-  content: "📊";
-  font-size: 1.5rem;
-}
-
-.nav-menu {
-  flex: 1;
-  padding: 20px 0;
-  overflow-y: auto;
-}
-
-.nav-menu::-webkit-scrollbar {
-  width: 6px;
-}
-
-.nav-menu::-webkit-scrollbar-track {
-  background: var(--secondary-bg);
-}
-
-.nav-menu::-webkit-scrollbar-thumb {
-  background: var(--border-color);
-  border-radius: 3px;
-}
-
-.nav-button {
-  width: 100%;
-  padding: 14px 20px;
-  border: none;
-  background: transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-  text-align: left;
-  font-size: 0.95rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  position: relative;
-  overflow: hidden;
-}
-
-.nav-button::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 3px;
-  background: var(--accent-color);
-  transform: scaleY(0);
-  transition: transform 0.2s ease;
-}
-
-.nav-button:hover {
-  background: rgba(59, 130, 246, 0.1);
-  color: var(--text-primary);
-}
-
-.nav-button:hover::before {
-  transform: scaleY(1);
-}
-
-.nav-button.active {
-  background: rgba(59, 130, 246, 0.15);
-  color: var(--accent-color);
-}
-
-.nav-button.active::before {
-  transform: scaleY(1);
-}
-
-.nav-icon {
-  font-size: 1.2rem;
-  min-width: 24px;
-}
-
-/* Toggle Button */
-.toggle-btn {
-  position: fixed;
-  left: 20px;
-  top: 20px;
-  width: 44px;
-  height: 44px;
-  background: var(--accent-color);
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1001;
-  transition: all var(--transition-speed) ease;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-}
-
-.toggle-btn:hover {
-  background: var(--accent-hover);
-  transform: scale(1.05);
-}
-
-.toggle-btn:active {
-  transform: scale(0.95);
-}
-
-.sidebar:not(.collapsed) ~ .toggle-btn {
-  left: calc(var(--sidebar-width) + 20px);
-}
-
-.hamburger {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  width: 20px;
-}
-
-.hamburger span {
-  display: block;
-  height: 2px;
-  background: white;
-  border-radius: 2px;
-  transition: all 0.3s ease;
-}
-
-.sidebar.collapsed ~ .toggle-btn .hamburger span:nth-child(1) {
-  transform: translateY(6px) rotate(45deg);
-}
-
-.sidebar.collapsed ~ .toggle-btn .hamburger span:nth-child(2) {
-  opacity: 0;
-}
-
-.sidebar.collapsed ~ .toggle-btn .hamburger span:nth-child(3) {
-  transform: translateY(-6px) rotate(-45deg);
-}
-
-/* Content Area */
-.content {
-  margin-left: var(--sidebar-width);
-  height: 100%;
-  transition: margin-left var(--transition-speed) ease;
-  position: relative;
-}
-
-.sidebar.collapsed ~ .toggle-btn ~ .content {
-  margin-left: 0;
-}
-
-.iframe-container {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  background: var(--primary-bg);
-}
-
-.iframe-loader {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  gap: 15px;
-}
-
-.iframe-loader.active {
-  display: flex;
-}
-
-.spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid var(--border-color);
-  border-top-color: var(--accent-color);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-#pdi {
-  width: 100%;
-  height: 100%;
-  border: none;
-  display: block;
-}
-
-/* Footer */
-.sidebar-footer {
-  padding: 15px 20px;
-  border-top: 1px solid var(--border-color);
-  background: var(--primary-bg);
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  text-align: center;
-}
-
-/* Overlay for mobile */
-.overlay {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 999;
-  opacity: 0;
-  transition: opacity var(--transition-speed) ease;
-}
-
-.overlay.active {
-  display: block;
-  opacity: 1;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  :root {
-    --sidebar-width: 260px;
-  }
-
-  .sidebar {
-    transform: translateX(-100%);
-  }
-
-  .sidebar.active {
-    transform: translateX(0);
-  }
-
-  .sidebar.collapsed {
-    transform: translateX(-100%);
-  }
-
-  .content {
-    margin-left: 0;
-  }
-
-  .toggle-btn {
-    left: 15px;
-    top: 15px;
-  }
-
-  .sidebar.active ~ .toggle-btn {
-    left: 15px;
-  }
-}
-
-@media (max-width: 480px) {
-  :root {
-    --sidebar-width: 100%;
-  }
-
-  .sidebar-header {
-    padding: 15px;
-  }
-
-  .nav-button {
-    padding: 12px 15px;
-  }
-}
-
-/* Print styles */
-@media print {
-  .sidebar,
-  .toggle-btn {
-    display: none;
-  }
-
-  .content {
-    margin-left: 0;
-  }
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,sans-serif;height:100vh;overflow:hidden;background:#0f172a;color:#f1f5f9}
+.sidebar{position:fixed;left:0;top:0;width:250px;height:100%;background:#1e293b;border-right:1px solid #334155;transition:transform .3s;z-index:100}
+.sidebar.hide{transform:translateX(-100%)}
+.sidebar h2{padding:20px;background:#0f172a;border-bottom:1px solid #334155;font-size:1.1rem}
+.nav{padding:10px 0}
+button{width:100%;padding:12px 20px;border:none;background:transparent;color:#94a3b8;cursor:pointer;text-align:left;font-size:.95rem;transition:all .2s}
+button:hover{background:rgba(59,130,246,.1);color:#f1f5f9}
+button.active{background:rgba(59,130,246,.15);color:#3b82f6;border-left:3px solid #3b82f6}
+.toggle{position:fixed;left:20px;top:20px;width:40px;height:40px;background:#3b82f6;border:none;border-radius:6px;cursor:pointer;z-index:101;transition:left .3s}
+.toggle:hover{background:#2563eb}
+.sidebar:not(.hide)~.toggle{left:270px}
+.toggle span{display:block;width:20px;height:2px;background:#fff;margin:4px auto;transition:.3s}
+.content{margin-left:250px;height:100%;transition:margin-left .3s}
+.sidebar.hide~.toggle~.content{margin-left:0}
+iframe{width:100%;height:100%;border:0}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99}
+@media(max-width:768px){
+  .sidebar{width:100%;transform:translateX(-100%)}
+  .sidebar.show{transform:translateX(0)}
+  .sidebar.hide{transform:translateX(-100%)}
+  .content{margin-left:0}
+  .toggle{left:15px!important}
+  .overlay.show{display:block}
 }
 </style>
 </head>
 <body>
-<div class="sidebar" id="sidebar">
-  <div class="sidebar-header">
-    <div class="sidebar-title">PDI Shell</div>
-  </div>
-  
-  <nav class="nav-menu">
-    <button class="nav-button active" onclick="loadPage('main')" data-page="main">
-      <span class="nav-icon">🏠</span>
-      <span>Main PDI</span>
-    </button>
-    <button class="nav-button" onclick="loadPage('front')" data-page="front">
-      <span class="nav-icon">📋</span>
-      <span>Front PDI</span>
-    </button>
-    <button class="nav-button" onclick="loadPage('back')" data-page="back">
-      <span class="nav-icon">📄</span>
-      <span>Back PDI</span>
-    </button>
-  </nav>
-  
-  <div class="sidebar-footer">
-    © 2026 PDI System
+<div class="sidebar" id="sb">
+  <h2>📊 PDI Shell</h2>
+  <div class="nav">
+    <button class="active" onclick="load('main')">🏠 Main PDI</button>
+    <button onclick="load('front')">📋 Front PDI</button>
+    <button onclick="load('back')">📄 Back PDI</button>
   </div>
 </div>
-
-<button class="toggle-btn" id="toggleBtn" onclick="toggleSidebar()" aria-label="Toggle Sidebar">
-  <div class="hamburger">
-    <span></span>
-    <span></span>
-    <span></span>
-  </div>
+<button class="toggle" onclick="toggle()">
+  <span></span><span></span><span></span>
 </button>
-
-<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
-
+<div class="overlay" id="ov" onclick="close()"></div>
 <div class="content">
-  <div class="iframe-container">
-    <div class="iframe-loader" id="loader">
-      <div class="spinner"></div>
-      <span>Loading...</span>
-    </div>
-    <iframe 
-      id="pdi"
-      src="https://script.google.com/macros/s/AKfycby9IT55uiRPCvCDdL3rOdA9eP5oYN6jPmMQ75dVZOuBGIyx12fIhdj01ID8Q4ZIRgc74w/exec?page=main"
-      title="PDI Content"
-      loading="lazy"
-    ></iframe>
-  </div>
+  <iframe id="pdi" src="https://script.google.com/macros/s/AKfycby9IT55uiRPCvCDdL3rOdA9eP5oYN6jPmMQ75dVZOuBGIyx12fIhdj01ID8Q4ZIRgc74w/exec?page=main"></iframe>
 </div>
-
 <script>
-const BASE_URL = "https://script.google.com/macros/s/AKfycby9IT55uiRPCvCDdL3rOdA9eP5oYN6jPmMQ75dVZOuBGIyx12fIhdj01ID8Q4ZIRgc74w/exec";
-const sidebar = document.getElementById('sidebar');
-const overlay = document.getElementById('overlay');
-const iframe = document.getElementById('pdi');
-const loader = document.getElementById('loader');
-const isMobile = window.innerWidth <= 768;
+const sb=document.getElementById('sb');
+const ov=document.getElementById('ov');
+const pdi=document.getElementById('pdi');
+const m=window.innerWidth<=768;
+const u='https://script.google.com/macros/s/AKfycby9IT55uiRPCvCDdL3rOdA9eP5oYN6jPmMQ75dVZOuBGIyx12fIhdj01ID8Q4ZIRgc74w/exec?page=';
 
-// Initialize sidebar state
-function initSidebar() {
-  if (isMobile) {
-    sidebar.classList.add('collapsed');
-  }
-  
-  // Restore last visited page
-  const lastPage = localStorage.getItem('lastPDIPage') || 'main';
-  loadPage(lastPage, false);
-}
-
-// Toggle sidebar
-function toggleSidebar() {
-  if (isMobile) {
-    sidebar.classList.toggle('active');
-    overlay.classList.toggle('active');
-    document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
-  } else {
-    sidebar.classList.toggle('collapsed');
-  }
-  
-  // Save state
-  localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
-}
-
-// Close sidebar (mobile)
-function closeSidebar() {
-  if (isMobile) {
-    sidebar.classList.remove('active');
-    overlay.classList.remove('active');
-    document.body.style.overflow = '';
+function toggle(){
+  if(m){
+    sb.classList.toggle('show');
+    ov.classList.toggle('show');
+  }else{
+    sb.classList.toggle('hide');
   }
 }
 
-// Load page
-function loadPage(page, closeOnMobile = true) {
-  // Show loader
-  loader.classList.add('active');
-  
-  // Update iframe source
-  iframe.src = `${BASE_URL}?page=${page}`;
-  
-  // Update active button
-  document.querySelectorAll('.nav-button').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.page === page);
-  });
-  
-  // Save to localStorage
-  localStorage.setItem('lastPDIPage', page);
-  
-  // Close sidebar on mobile after selection
-  if (closeOnMobile && isMobile) {
-    setTimeout(() => closeSidebar(), 300);
-  }
+function close(){
+  sb.classList.remove('show');
+  ov.classList.remove('show');
 }
 
-// Hide loader when iframe loads
-iframe.addEventListener('load', () => {
-  loader.classList.remove('active');
-});
-
-// Handle window resize
-let resizeTimer;
-window.addEventListener('resize', () => {
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(() => {
-    location.reload();
-  }, 250);
-});
-
-// Keyboard shortcuts
-document.addEventListener('keydown', (e) => {
-  // Toggle sidebar with Ctrl/Cmd + B
-  if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
-    e.preventDefault();
-    toggleSidebar();
-  }
-  
-  // Navigate with Ctrl/Cmd + 1/2/3
-  if (e.ctrlKey || e.metaKey) {
-    const pageMap = { '1': 'main', '2': 'front', '3': 'back' };
-    if (pageMap[e.key]) {
-      e.preventDefault();
-      loadPage(pageMap[e.key]);
-    }
-  }
-});
-
-// Initialize on load
-initSidebar();
-
-// Service Worker for offline capability (optional)
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    // navigator.serviceWorker.register('/sw.js').catch(() => {});
-  });
+function load(p){
+  pdi.src=u+p;
+  document.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  if(m)close();
 }
+
+if(m)sb.classList.add('hide');
 </script>
 </body>
 </html>
