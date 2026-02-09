@@ -1,196 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8" />
-<title>PDI Slot Management</title>
-
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-
+<meta charset="UTF-8">
+<title>PDI Shell</title>
 <style>
-/* RESET */
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #e5e7eb;
-}
-
-/* APP LAYOUT */
-.app {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-}
-
-/* TOP BAR */
-.topbar {
-  height: 50px;
-  background: #111827;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  padding: 0 16px;
-  justify-content: space-between;
-}
-
-.topbar .left {
-  font-weight: bold;
-}
-
-.topbar .right {
-  font-size: 13px;
-  opacity: 0.9;
-}
-
-/* BODY */
-.body {
-  flex: 1;
-  display: flex;
-  overflow: hidden;
-}
-
-/* SIDEBAR */
-.sidebar {
-  width: 240px;
-  background: #1f2937;
-  color: #fff;
-  padding: 12px;
-  overflow-y: auto;
-  transition: width 0.3s;
-}
-
-.sidebar h4 {
-  margin: 14px 0 6px;
-  font-size: 13px;
-  opacity: 0.7;
-}
-
-.sidebar button {
-  width: 100%;
-  background: #374151;
-  color: #fff;
-  border: none;
-  padding: 8px;
-  margin-bottom: 6px;
-  border-radius: 6px;
-  cursor: pointer;
-  text-align: left;
-}
-
-.sidebar button:hover {
-  background: #4b5563;
-}
-
-/* MAIN AREA */
-.main {
-  flex: 1;
-  background: #f3f4f6;
-  overflow: auto;
-  padding: 12px;
-}
-
-/* CANVAS HOLDER */
-.canvas-wrapper {
-  min-width: 1200px;
-  min-height: 650px;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-}
-
-/* MOBILE */
-@media (max-width: 768px) {
-  .sidebar {
-    position: absolute;
-    left: -240px;
-    top: 50px;
-    height: calc(100% - 50px);
-    z-index: 10;
-  }
-
-  .sidebar.open {
-    left: 0;
-  }
-
-  .topbar .menu {
-    display: inline-block;
-    cursor: pointer;
-    margin-right: 12px;
-  }
-}
+body{margin:0;height:100vh;}
+iframe{width:100%;height:100%;border:none;}
+.sidebar{position:fixed;left:0;top:0;width:200px;height:100%;background:#111;color:#fff;}
+.content{margin-left:200px;height:100%;}
+button{width:100%;padding:10px;border:none;background:#222;color:#fff;cursor:pointer;}
 </style>
 </head>
 
 <body>
+<div class="sidebar">
+  <button onclick="load('main')">Main PDI</button>
+  <button onclick="load('front')">Front PDI</button>
+  <button onclick="load('back')">Back PDI</button>
+</div>
 
-<div class="app">
-
-  <!-- TOP BAR -->
-  <div class="topbar">
-    <div class="left">
-      <span class="menu" onclick="toggleSidebar()">☰</span>
-      🚗 PDI SLOT MANAGEMENT
-    </div>
-    <div class="right">
-      MAIN PDI | User: Admin
-    </div>
-  </div>
-
-  <!-- BODY -->
-  <div class="body">
-
-    <!-- SIDEBAR -->
-    <div class="sidebar" id="sidebar">
-      <h4>PDI AREAS</h4>
-      <button>Main PDI</button>
-      <button>Front PDI</button>
-      <button>Back PDI</button>
-
-      <h4>QUICK ACTIONS</h4>
-      <button>Search VIN</button>
-      <button>Scan VIN</button>
-
-      <h4>SLOT LEGEND</h4>
-      <button style="background:#22c55e">EMPTY</button>
-      <button style="background:#facc15">ASSIGNED</button>
-      <button style="background:#9ca3af">DELIVERED</button>
-
-      <h4>INFO</h4>
-      <button>Total Slots</button>
-      <button>Empty Slots</button>
-    </div>
-
-    <!-- MAIN CONTENT -->
-    <div class="main">
-      <div class="canvas-wrapper">
-
-        <!-- 🔽 DROP YOUR EXISTING MAIN PDI CODE HERE 🔽 -->
-        <!-- Example placeholder -->
-        <iframe
-          src="main.html"
-          style="
-            width: 1200px;
-            height: 650px;
-            border: none;
-            background: transparent;
-          ">
-        </iframe>
-
-
-      </div>
-    </div>
-
-  </div>
+<div class="content">
+  <iframe id="pdi"
+    src="https://script.google.com/macros/s/YOUR_ID/exec?page=main">
+  </iframe>
 </div>
 
 <script>
-function toggleSidebar() {
-  document.getElementById("sidebar").classList.toggle("open");
+function load(p){
+  document.getElementById("pdi").src =
+    "https://script.google.com/macros/s/YOUR_ID/exec?page="+p;
 }
 </script>
-
 </body>
 </html>
