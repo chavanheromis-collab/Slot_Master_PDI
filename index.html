@@ -4,87 +4,134 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PDI Shell</title>
+
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:system-ui,sans-serif;height:100vh;overflow:hidden;background:#0f172a;color:#f1f5f9}
-.sidebar{position:fixed;left:0;top:0;width:250px;height:100%;background:#1e293b;border-right:1px solid #334155;transition:transform .3s;z-index:100}
+body{
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  height:100vh;
+  background:#0f172a;
+  color:#e5e7eb;
+  overflow:hidden;
+}
+
+/* Sidebar */
+.sidebar{
+  position:fixed;
+  inset:0 auto 0 0;
+  width:260px;
+  background:#020617;
+  border-right:1px solid #1e293b;
+  transform:translateX(0);
+  transition:.25s ease;
+  z-index:100;
+}
+
 .sidebar.hide{transform:translateX(-100%)}
-.sidebar h2{padding:20px;background:#0f172a;border-bottom:1px solid #334155;font-size:1.1rem}
-.nav{padding:10px 0}
-button{width:100%;padding:12px 20px;border:none;background:transparent;color:#94a3b8;cursor:pointer;text-align:left;font-size:.95rem;transition:all .2s}
-button:hover{background:rgba(59,130,246,.1);color:#f1f5f9}
-button.active{background:rgba(59,130,246,.15);color:#3b82f6;border-left:3px solid #3b82f6}
-.toggle{position:fixed;left:20px;top:20px;width:40px;height:40px;background:#3b82f6;border:none;border-radius:6px;cursor:pointer;z-index:101;transition:left .3s}
-.toggle:hover{background:#2563eb}
-.sidebar:not(.hide)~.toggle{left:270px}
-.toggle span{display:block;width:20px;height:2px;background:#fff;margin:4px auto;transition:.3s}
-.content{margin-left:250px;height:100%;transition:margin-left .3s}
-.sidebar.hide~.toggle~.content{margin-left:0}
-iframe{width:100%;height:100%;border:0}
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99}
+
+.sidebar h2{
+  padding:20px;
+  font-size:1.1rem;
+  background:#020617;
+  border-bottom:1px solid #1e293b;
+}
+
+/* Nav */
+.nav button{
+  width:100%;
+  padding:14px 20px;
+  background:none;
+  border:none;
+  color:#94a3b8;
+  text-align:left;
+  font-size:.95rem;
+  cursor:pointer;
+  transition:.15s;
+}
+
+.nav button:hover{
+  background:#1e293b;
+  color:#e5e7eb;
+}
+
+.nav button.active{
+  background:#1e40af;
+  color:#fff;
+  border-left:4px solid #3b82f6;
+}
+
+/* Toggle */
+.toggle{
+  position:fixed;
+  top:16px;
+  left:16px;
+  width:42px;
+  height:42px;
+  background:#2563eb;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  z-index:101;
+}
+
+.toggle span{
+  display:block;
+  width:20px;
+  height:2px;
+  background:#fff;
+  margin:5px auto;
+}
+
+/* Mobile */
 @media(max-width:768px){
-  .sidebar{width:100%;transform:translateX(-100%)}
+  .sidebar{transform:translateX(-100%)}
   .sidebar.show{transform:translateX(0)}
-  .sidebar.hide{transform:translateX(-100%)}
-  .content{margin-left:0}
-  .toggle{left:15px!important}
-  .overlay.show{display:block}
 }
 </style>
 </head>
+
 <body>
-<div class="sidebar" id="sb">
-  <h2>📊 PDI Shell</h2>
+
+<!-- Sidebar -->
+<div class="sidebar hide" id="sidebar">
+  <h2>🚗 PDI Dashboard</h2>
   <div class="nav">
-    <button class="active" onclick="load('main')">🏠 Main PDI</button>
-    <button onclick="load('front')">📋 Front PDI</button>
-    <button onclick="load('back')">📄 Back PDI</button>
+    <button class="active" onclick="openPDI('main',this)">Main PDI</button>
+    <button onclick="openPDI('front',this)">Front PDI</button>
+    <button onclick="openPDI('back',this)">Back PDI</button>
   </div>
 </div>
-<button class="toggle" onclick="toggle()">
+
+<!-- Toggle -->
+<button class="toggle" onclick="toggleMenu()">
   <span></span><span></span><span></span>
 </button>
-<div class="overlay" id="ov" onclick="close()"></div>
-<div class="content">
-  <script>
-function openPDI(p){
-  window.open(
-    "https://script.google.com/macros/s/AKfycby9IT55uiRPCvCDdL3rOdA9eP5oYN6jPmMQ75dVZOuBGIyx12fIhdj01ID8Q4ZIRgc74w/exec?page="+p,
-    "_self" // or "_blank"
-  );
-}
-</script>
-</div>
+
 <script>
-const sb=document.getElementById('sb');
-const ov=document.getElementById('ov');
-const pdi=document.getElementById('pdi');
-const m=window.innerWidth<=768;
-const u='https://script.google.com/macros/s/AKfycby9IT55uiRPCvCDdL3rOdA9eP5oYN6jPmMQ75dVZOuBGIyx12fIhdj01ID8Q4ZIRgc74w/exec?page=';
+const BASE =
+"https://script.google.com/macros/s/AKfycby9IT55uiRPCvCDdL3rOdA9eP5oYN6jPmMQ75dVZOuBGIyx12fIhdj01ID8Q4ZIRgc74w/exec?page=";
 
-function toggle(){
-  if(m){
-    sb.classList.toggle('show');
-    ov.classList.toggle('show');
-  }else{
-    sb.classList.toggle('hide');
-  }
+const sb = document.getElementById("sidebar");
+const isMobile = window.innerWidth <= 768;
+
+function toggleMenu(){
+  sb.classList.toggle(isMobile ? "show" : "hide");
 }
 
-function close(){
-  sb.classList.remove('show');
-  ov.classList.remove('show');
+function openPDI(page,btn){
+  document.querySelectorAll(".nav button")
+    .forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+
+  // ✅ OPEN APPS SCRIPT DIRECTLY (CAMERA SAFE)
+  window.location.href = BASE + page;
 }
 
-function load(p){
-  pdi.src=u+p;
-  document.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
-  event.target.classList.add('active');
-  if(m)close();
+// Auto-close sidebar on mobile
+if(isMobile){
+  sb.classList.add("hide");
 }
-
-if(m)sb.classList.add('hide');
 </script>
+
 </body>
 </html>
-
