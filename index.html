@@ -7,6 +7,7 @@
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
+
 body{
   font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
   height:100vh;
@@ -15,11 +16,13 @@ body{
   overflow:hidden;
 }
 
-/* Sidebar */
+/* ================= SIDEBAR ================= */
 .sidebar{
   position:fixed;
-  inset:0 auto 0 0;
+  top:0;
+  left:0;
   width:260px;
+  height:100vh;
   background:#020617;
   border-right:1px solid #1e293b;
   transform:translateX(0);
@@ -27,16 +30,17 @@ body{
   z-index:100;
 }
 
-.sidebar.hide{transform:translateX(-100%)}
+.sidebar.hide{
+  transform:translateX(-100%);
+}
 
 .sidebar h2{
   padding:20px;
   font-size:1.1rem;
-  background:#020617;
   border-bottom:1px solid #1e293b;
 }
 
-/* Nav */
+/* ================= NAV ================= */
 .nav button{
   width:100%;
   padding:14px 20px;
@@ -60,7 +64,7 @@ body{
   border-left:4px solid #3b82f6;
 }
 
-/* Toggle */
+/* ================= TOGGLE ================= */
 .toggle{
   position:fixed;
   top:16px;
@@ -82,17 +86,36 @@ body{
   margin:5px auto;
 }
 
-/* Mobile */
+/* ================= IFRAME ================= */
+#pdiFrame{
+  position:fixed;
+  top:0;
+  left:260px;
+  width:calc(100% - 260px);
+  height:100vh;
+  border:none;
+  background:#0f172a;
+}
+
+/* ================= MOBILE ================= */
 @media(max-width:768px){
-  .sidebar{transform:translateX(-100%)}
-  .sidebar.show{transform:translateX(0)}
+  .sidebar{
+    transform:translateX(-100%);
+  }
+  .sidebar.show{
+    transform:translateX(0);
+  }
+  #pdiFrame{
+    left:0;
+    width:100%;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<!-- Sidebar -->
+<!-- SIDEBAR -->
 <div class="sidebar hide" id="sidebar">
   <h2>🚗 PDI Dashboard</h2>
   <div class="nav">
@@ -102,35 +125,55 @@ body{
   </div>
 </div>
 
-<!-- Toggle -->
+<!-- TOGGLE BUTTON -->
 <button class="toggle" onclick="toggleMenu()">
   <span></span><span></span><span></span>
 </button>
 
+<!-- CAMERA SAFE IFRAME -->
+<iframe
+  id="pdiFrame"
+  allow="camera; microphone">
+</iframe>
+
 <script>
+/* ========= CONFIG ========= */
 const BASE =
 "https://script.google.com/macros/s/AKfycby9IT55uiRPCvCDdL3rOdA9eP5oYN6jPmMQ75dVZOuBGIyx12fIhdj01ID8Q4ZIRgc74w/exec?page=";
 
 const sb = document.getElementById("sidebar");
+const frame = document.getElementById("pdiFrame");
 const isMobile = window.innerWidth <= 768;
 
+/* ========= SIDEBAR ========= */
 function toggleMenu(){
   sb.classList.toggle(isMobile ? "show" : "hide");
 }
 
-function openPDI(page,btn){
+/* ========= NAVIGATION ========= */
+function openPDI(page, btn){
+
+  // Active button
   document.querySelectorAll(".nav button")
-    .forEach(b=>b.classList.remove("active"));
+    .forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
 
-  // ✅ OPEN APPS SCRIPT DIRECTLY (CAMERA SAFE)
-  window.location.href = BASE + page;
+  // Load camera page SAFELY
+  const newUrl = BASE + page;
+  if(frame.src !== newUrl){
+    frame.src = newUrl;
+  }
+
+  // Close sidebar on mobile
+  if(isMobile){
+    sb.classList.remove("show");
+  }
 }
 
-// Auto-close sidebar on mobile
-if(isMobile){
-  sb.classList.add("hide");
-}
+/* ========= INIT ========= */
+window.onload = () => {
+  frame.src = BASE + "main"; // default load
+};
 </script>
 
 </body>
